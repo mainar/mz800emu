@@ -1,0 +1,15 @@
+
+The operation of this software is need to ensure the following runtime
+libraries:
+
+SDL2 - https://www.libsdl.org/
+
+        Linux version is tested on SDL-2.26.5
+        Windows version is compatible with SDL-2.0.5
+
+GTK3
+
+	I have tested the runtime from MinGW-w64 for Windows 32bit and 64bit versions - https://www.mingw-w64.org/
+
+	I haven't tested, but apparently this 64bit runtime can also be used -
+		https://github.com/tschoonj/GTK-for-Windows-Runtime-Environment-Installer/

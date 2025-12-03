@@ -1,0 +1,83 @@
+
+
+All necessary for creating linux native app:
+============================================
+
+
+---
+--- Basic development tools
+---
+# yum groupinstall 'Development Tools'
+# yum install -y mercurial make cmake autoconf automake libtool 
+
+
+--
+-- Latest SDL
+--
+# yum install alsa-lib-devel libXScrnSaver libXScrnSaver-devel libogg-devel libvorbis-devel libxkbcommon libxkbcommon-devel mesa-libGLES mesa-libGLES-devel mesa-libGLU-devel systemd-devel
+---
+--- I dont know why, but alsa driver is not work good:
+---
+--- Audio driver OK: alsa
+---
+--- ALSA lib pcm.c:8315:(snd_pcm_recover) underrun occurred
+--- 
+--- PULSEAUDIO:
+---
+# yum install pulseaudio-libs-glib2 pulseaudio-libs pulseaudio pulseaudio-module-x11 pulseaudio-utils pulseaudio-gdm-hooks pulseaudio-libs-devel
+
+# cd /usr/local/src/
+# wget https://www.libsdl.org/release/SDL2-2.0.5.tar.gz
+# tar zxvf SDL2-2.0.5.tar.gz 
+# cd SDL2-2.0.5/
+# ./configure 
+# make
+# make install
+
+---
+--- or install from repository (it is good way for dependency fixes)
+---
+# yum install SDL2*
+
+--
+-- gtk3
+--
+# yum install -y gtk3 gtk3-devel
+
+
+$ cd ~/mz800emu
+$ make CONF=Debug-Linux
+$ ./dist/Debug-Linux/GNU-Linux/mz800emu 
+
+
+All necessary for creating win32 / win64 cross-compiled app:
+============================================================
+
+--
+-- win32
+--
+# yum install mingw32-gcc mingw32-gtk3
+
+--
+-- win64
+--
+# yum install mingw64-gcc mingw64-gtk3
+
+
+# mkdir /usr/local/src/mingw
+# cd /usr/local/src/mingw
+# wget https://www.libsdl.org/release/SDL2-devel-2.0.5-mingw.tar.gz
+# tar zxvf SDL2-devel-2.0.5-mingw.tar.gz
+# cd SDL2-2.0.5/
+# mkdir /usr/local/cross-tools
+# mkdir /usr/local/cross-tools/i686-w64-mingw32
+# mkdir /usr/local/cross-tools/x86_64-w64-mingw32
+# make cross
+#
+
+
+$ cd ~/mz800emu
+$ make CONF=Release-Win32
+
+--
+$ make CONF=Release-Win64

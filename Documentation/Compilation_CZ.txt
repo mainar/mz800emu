@@ -1,0 +1,110 @@
+
+Kompilacni volby preprocesoru:
+==============================
+
+	LINUX - pokud je cilovym OS
+	WINDOWS - pokud touzite po tomto cili
+
+	W32NAT - pokud projekt kompilujete v nativnim prostredi windows
+		(v nativnim mingw32 chybi fce vasprintf a musime ji bypasovat)
+
+
+Kompilace v Linuxu:
+==================
+
+Pro zmeny konfigurace doporucuji pouzit Netbeans IDE.
+
+Minimalni potrebne vybaveni:
+
+	- mingw32 ( pokud chcete crosskompilovat pro WIN32 )
+	- vyvojove knihovny SDL2 , ( v pripade cross kompilace v mingw je - potreba WIN32 verze ! ) https://www.libsdl.org/download-2.0.php
+	- GTK3
+	- libsoup-2.4
+	- pkg-config
+
+
+Makefile je prpraven pouzit tyto konfigurace:
+
+	Release-Win32 (default)
+	Release-Win64
+	Debug-Linux 
+	Release-Linux 
+	Debug-Win32-Native
+	Release-Win32-Native
+
+Pro cross kompilaci do WIN32 staci napsat 'make', nebo 'make CONF=Release-Win32'.
+
+Ke kompilaci LINUX verze 'make CONF=Release-Linux'.
+
+Po uspesne kompilaci naleznete vysledek v prislusnem podadresari ./dist/
+
+Do adresare ze ktereho budete program spoustet je potreba nakopirovat adresar ./ui_resources
+
+
+Potize pri linkovani:
+=====================
+
+Obcas se mi stane, ze kompilace projektu skonci s chybou v linkeru.
+Nepatral jsem po duvodu - zacalo se to dit po nejake aktualizaci bud
+netbeans, nebo nejakeho vyvojoveho nastroje.
+
+Duvodem je to, ze Makefile z netbeans od nejake verze obcas strci do prikazu 
+linkeru i obsah promenne CFLAGS. 
+V takovem pripade je potreba otevrit Netbeans a v nastaveni projektu otevrit
+volbu "Link Tool" a napsat tam rucne gcc (i kdyz uz tam zrejme je) a ulozit.
+
+Pokud se zadarilo, tak v prislusnem makefile-<konfigurace> se to pak projevi
+tim, ze je na zacatku linkovaciho radku primo uvedeno "gcc".
+ 
+V opacnem pripade je tam ${LINK.c}, coz se prave obcas expanduje na "gcc ${CFLAGS}".
+
+
+Kompilace WIN32 verze projektu ve Windows:
+==========================================
+
+Nativne je program vyvijen v Linuxu, nicmene alespon jednou jsem se jej
+pokusil sestavit ve Windows. Zde je postup:
+
+1. Nainstalovat Mingw a msys - http://www.mingw.org/ - download mingw-get-setup.exe 
+
+2. Pocitac -> Vlastnosti -> Upresnit -> Promenne prostredi : Uzivatelske promenne
+
+	Do PATH pridat: ;C:\MinGW\bin;C:\MinGW\MSYS\1.0\local\bin;C:\MinGW\MSYS\1.0\bin
+
+3. Optimalne - Nainstalovat NetBeans IDE
+
+	- nyni uz by melo jit kompilovat a trasovat 
+
+	- aby bylo mozne debuggovat, tak je potreba ve vlastnostech projektu nastavit v sekci Run:
+
+		Console type: Standard Output
+
+4. SDL2 - https://www.libsdl.org/download-2.0.php, Development, windows, mingw
+
+	- obsah adresare i686-w64-mingw32/ nakopirovat do C:\MinGW\
+
+	- stahnout bugfix https://hg.libsdl.org/SDL/raw-file/e217ed463f25/include/SDL_platform.h do C:\MinGW\include\SDL2\
+
+	- nyni uz lze kompilovat #include <SDL2/SDL.h>, 
+
+	dynamicky linkovat:
+
+	-L/C/MinGW/lib 
+	-lmingw32 -lSDL2main -lSDL2 -mwindows
+
+	staticky linkovat (neodzkouseno):
+
+	-L/C/MinGW/lib
+	-lmingw32 -lSDL2main -lSDL2 -mwindows -Wl,--no-undefined -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -lwinmm -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -XCClinker -static-libgcc
+
+	Pokud se neprida -mwindows, tak si program otevre consoli.
+
+5. Gtk3 - http://www.gtk.org/download/win32_tutorial.php
+
+
+6. Nyni by jiz melo byt mozne kompilovat profil Release-Win32-native a Debug-Win32-native
+
+	- ve standardni win32 verzi mingw32 zrejme chybi vasprintf(),
+	prozatim jej ve verzi kompilovane pod w32nat bypassujeme v
+	ui/ui_main.c a a chybova hlaseni jsou zobrazena jen v consoli.
+

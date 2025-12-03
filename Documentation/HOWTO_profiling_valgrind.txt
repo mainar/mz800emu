@@ -1,0 +1,26 @@
+
+--
+-- https://baptiste-wicht.com/posts/2011/09/profile-c-application-with-callgrind-kcachegrind.html
+--
+
+# yum install valgrind kdesdk-kcachegrind graphviz
+
+
+--
+-- Prepare mz800emu source for tests. For example load MZF, run and
+-- configure NORMALY exit after xx seconds. Good way is by screens counter:
+-- #ifdef MZ800EMU_CFG_SPEED_TEST
+--    if ( g_gdg.elapsed_total_screens > 1000 ) main_app_quit ( EXIT_SUCCESS );
+-- #endif
+--
+
+$ make CONF=Debug-Linux
+$ valgrind --tool=callgrind ./dist/Debug-Linux/GNU-Linux/mz800emu
+
+--
+-- ... (is a very slow) ... 
+-- After program is NORMALY exiting:
+--
+-- Output is saved into ./callgrind.out.xxxx
+-- This file may be analyzed in KCachegrind
+--

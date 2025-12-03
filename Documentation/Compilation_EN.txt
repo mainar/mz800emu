@@ -1,0 +1,46 @@
+
+
+Preprocessor directives:
+========================
+
+	LINUX - target binary is compiled for Linux
+	WINDOWS - target binary is compiled for Windows
+
+	W32NAT - program is compiled native in Windows (only for WIN32 targets)
+		 this directive is activation bypass for function vasprintf() - is missing here
+
+
+Compilation
+===========
+
+To change configuration of this project will serve the best use Netbeans IDE.
+
+For compilation you need:
+
+	- mingw32 ( is need only for WIN32 target )
+	- Development libraries SDL2 , ( mingw for WIN32 ! ) https://www.libsdl.org/download-2.0.php
+	- GTK3 development libraries
+	- libsoup-2.4
+	- pkg-config
+
+
+
+
+
+The Makefile supports several configurations:
+
+	Release-Win32 (is default)
+	Release-Win64
+	Debug-Linux 
+	Release-Linux 
+	Debug-Win32-Native
+	Release-Win32-Native
+
+
+For cross compilation to WIN32 just write 'make' or 'make CONF=Release-Win32'.
+
+For compilation to LINUX write 'make CONF=Release-Linux'.
+
+The compilled file will be saved into ./dist/ subdirectory.
+
+Into work directory with mz800emu must be copied ./ui_resources directory with all stored files.

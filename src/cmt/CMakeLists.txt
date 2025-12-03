@@ -1,0 +1,33 @@
+add_library(CMT OBJECT
+    cmt.c
+    cmtext_block.c
+    cmtext_block_defs.h
+    cmtext_block.h
+    cmtext.c
+    cmtext_container.c
+    cmtext_container.h
+    cmtext.h
+    cmt.h
+    cmthack.c
+    cmthack.h
+    cmt_mzf.c
+    cmt_mzf.h
+    cmt_mzftape.c
+    cmt_mzftape.h
+    cmt_save.c
+    cmt_save.h
+    cmt_tap.c
+    cmt_tap.h
+    cmt_wav.c
+    cmt_wav.h
+    )
+
+target_link_libraries(CMT
+    PUBLIC 
+    CPU
+    mz800emu_options
+    )
+target_include_directories(CMT 
+    PUBLIC 
+    .
+    )

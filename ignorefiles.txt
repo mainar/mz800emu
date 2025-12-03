@@ -1,0 +1,9 @@
+dist
+build
+nbproject/private
+mz800emu.ini
+breakpoints.ini
+rd.dat
+.dep.inc
+src/build_time.c
+error.log

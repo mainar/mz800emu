@@ -1,0 +1,17 @@
+
+K provozu tohoto software je potreba zajistit nasledujici runtime knihovny:
+
+SDL2 - https://www.libsdl.org/
+
+	Linux verze byla testovana na SDL-2.26.5
+	Windows verze je kompatibilni s SDL-2.0.5 
+
+GTK3
+
+	Pro Windows 32bit a 64bit verze mam otestovany runtime z MinGW-w64 - https://www.mingw-w64.org/
+
+	Netestoval jsem, ale zrejme lze pouzit i tento 64bit runtime - 
+		https://github.com/tschoonj/GTK-for-Windows-Runtime-Environment-Installer/
+
+Pokud ve Windows nechcete ke spousteni programu pouzivat soubor mz800emu.bat, tak je
+potreba upravit systemovou promennou $PATH.

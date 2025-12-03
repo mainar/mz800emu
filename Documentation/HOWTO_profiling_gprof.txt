@@ -1,0 +1,16 @@
+
+How to get profiling informations with gprof
+============================================
+
+
+$ make CONF=Gprof-Debug-Linux
+$ ./dist/Gprof-Debug-Linux/GNU-Linux/mz800emu 
+
+-- ... use and exit app
+
+--
+-- Statistics are now saved in ./gmon.out
+--
+
+$ gprof ./dist/Gprof-Debug-Linux/GNU-Linux/mz800emu ./gmon.out > analysis.txt
+
