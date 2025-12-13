@@ -60,6 +60,9 @@
 #include "iface_sdl/iface_sdl_audio.h"
 
 #include "libs/mztape/mztape.h"
+#include "libs/mzf/mzf.h"
+#include "libs/generic_driver/generic_driver.h"
+#include "ui/generic_driver/ui_memory_driver.h"
 
 // ve Win32 neni ???
 //#include <SDL2/SDL_assert.h>
@@ -231,6 +234,83 @@ unsigned flag_update_debugger_time = 1;
 #define INTERRUPT_TIMER_MS          20
 #define INTERRUPT_MAKEPIC_PER_SEC   25
 #define INTERRUPT_POOL_EVENTS_PER_SEC   20
+
+
+// Global variable to store MZF filename for delayed loading
+static const char *g_mzf_file_to_load = NULL;
+
+// Timer callback for autoloading MZF file into memory
+static uint32_t autoload_mzf_timer ( uint32_t interval, void* param ) {
+    (void) interval;
+    (void) param;
+
+    if ( g_mzf_file_to_load == NULL ) {
+        return 0; // Stop timer
+    }
+
+    printf ( "\n=== Auto-loading MZF file into memory ===\n" );
+
+    st_HANDLER mzf_handler;
+    st_DRIVER *driver = &g_ui_memory_driver_static;
+
+    // Register and open the MZF file
+    generic_driver_register_handler ( &mzf_handler, HANDLER_TYPE_MEMORY );
+    generic_driver_set_handler_readonly_status ( &mzf_handler, 1 );
+
+    if ( ( NULL == generic_driver_open_memory_from_file ( &mzf_handler, driver, (char*) g_mzf_file_to_load ) ) ||
+         ( mzf_handler.err ) || ( driver->err ) ) {
+        fprintf ( stderr, "Error: Failed to open MZF file '%s'\n", g_mzf_file_to_load );
+        return 0; // Stop timer
+    }
+
+    // Enable ROMs
+    g_memory.map = MEMORY_MAP_FLAG_ROM_0000 | MEMORY_MAP_FLAG_ROM_E000;
+
+    // Read MZF header
+    st_MZF_HEADER mzfhdr;
+    uint8_t header_buff[sizeof ( st_MZF_HEADER )];
+
+    if ( EXIT_SUCCESS == generic_driver_read ( &mzf_handler, 0, &header_buff, sizeof ( header_buff ) ) ) {
+        // Load header to 0x10f0 (standard location where MZ-800 programs expect it)
+        memory_load_block ( header_buff, 0x10f0, sizeof ( st_MZF_HEADER ), MEMORY_LOAD_MAPED );
+
+        // Also parse the header to get load/exec addresses
+        if ( EXIT_SUCCESS == mzf_read_header ( &mzf_handler, &mzfhdr ) ) {
+            printf ( "  Load address: 0x%04x\n", mzfhdr.fstrt );
+            printf ( "  File size:    0x%04x\n", mzfhdr.fsize );
+            printf ( "  Exec address: 0x%04x\n", mzfhdr.fexec );
+
+            // Read MZF body
+            uint8_t *data = malloc ( mzfhdr.fsize );
+            if ( data != NULL ) {
+                if ( EXIT_SUCCESS == mzf_read_body ( &mzf_handler, data, mzfhdr.fsize ) ) {
+                    // Load program body into memory at load address
+                    memory_load_block ( data, mzfhdr.fstrt, mzfhdr.fsize, MEMORY_LOAD_MAPED );
+
+                    // Set up CPU registers
+                    z80ex_set_reg ( g_mz800.cpu, regSP, 0x10f0 );  // Stack pointer
+                    z80ex_set_reg ( g_mz800.cpu, regPC, mzfhdr.fexec );  // Program counter to exec address
+
+                    printf ( "Successfully loaded header at 0x10f0 and program at 0x%04x.\n", mzfhdr.fstrt );
+                    printf ( "Starting execution at PC=0x%04x, SP=0x10f0.\n", mzfhdr.fexec );
+                } else {
+                    fprintf ( stderr, "Error: Failed to read MZF file body\n" );
+                }
+                free ( data );
+            } else {
+                fprintf ( stderr, "Error: Failed to allocate memory for MZF body\n" );
+            }
+        } else {
+            fprintf ( stderr, "Error: Failed to parse MZF header\n" );
+        }
+    } else {
+        fprintf ( stderr, "Error: Failed to read MZF header from file\n" );
+    }
+
+    generic_driver_close ( &mzf_handler );
+
+    return 0; // Stop timer
+}
 
 
 uint32_t screens_counter_flush ( uint32_t interval, void* param ) {
@@ -844,11 +924,23 @@ static inline void mz800_interrupt_service ( void ) {
 }
 
 
-void mz800_main ( void ) {
+void mz800_main ( const char *mzf_file_to_load ) {
 
     mz800_reset ( );
 
     SDL_AddTimer ( INTERRUPT_TIMER_MS, screens_counter_flush, NULL );
+
+    // Auto-load MZF file into memory if provided on command line
+    if ( mzf_file_to_load != NULL ) {
+        printf ( "\nMZF file specified: %s\n", mzf_file_to_load );
+        printf ( "Will load into memory after 2 second delay to allow system initialization...\n\n" );
+
+        // Store filename for timer callback
+        g_mzf_file_to_load = mzf_file_to_load;
+
+        // Schedule delayed loading (2 seconds after reset to let system initialize)
+        SDL_AddTimer ( 2000, autoload_mzf_timer, NULL );
+    }
 
 #if 0
     g_memory.map = MEMORY_MAP_FLAG_ROM_0000 | MEMORY_MAP_FLAG_ROM_E000;

@@ -166,7 +166,7 @@ extern "C" {
 
     extern void mz800_reset ( void );
     extern void mz800_init ( void );
-    extern void mz800_main ( void );
+    extern void mz800_main ( const char *mzf_file_to_load );
     extern void mz800_exit ( void );
     extern void mz800_set_display_mode ( Z80EX_BYTE dmd_mode, unsigned event_ticks );
 

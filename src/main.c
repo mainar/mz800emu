@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <locale.h>
+#include <string.h>
 #include <glib.h>
 
 #include "main.h"
@@ -46,6 +47,20 @@
 //#define DBGLEVEL (DBGNON | DBGERR | DBGWAR | DBGINF )
 #include "debug.h"
 
+
+void print_usage ( const char *program_name ) {
+    printf ( "Usage: %s [OPTIONS] [FILE]\n", program_name );
+    printf ( "\n" );
+    printf ( "MZ800 Emulator\n" );
+    printf ( "\n" );
+    printf ( "Options:\n" );
+    printf ( "  -h, --help              Show this help message and exit\n" );
+    printf ( "\n" );
+    printf ( "Arguments:\n" );
+    printf ( "  FILE                    Optional MZF cassette tape image file to load on startup\n" );
+    printf ( "                          Supported extensions: .mzf, .m12\n" );
+    printf ( "\n" );
+}
 
 void main_app_quit ( int exit_value ) {
 
@@ -84,9 +99,32 @@ void main_app_init ( void ) {
 
 
 /*
- * 
+ *
  */
 int main ( int argc, char** argv ) {
+
+    char *mzf_file_to_load = NULL;
+
+    // Parse command line arguments
+    for ( int i = 1; i < argc; i++ ) {
+        if ( strcmp ( argv[i], "-h" ) == 0 || strcmp ( argv[i], "--help" ) == 0 ) {
+            print_usage ( argv[0] );
+            return 0;
+        } else if ( argv[i][0] != '-' ) {
+            // Assume it's a file path
+            if ( mzf_file_to_load == NULL ) {
+                mzf_file_to_load = argv[i];
+            } else {
+                fprintf ( stderr, "Error: Multiple file arguments provided. Only one file can be loaded at a time.\n" );
+                print_usage ( argv[0] );
+                return 1;
+            }
+        } else {
+            fprintf ( stderr, "Error: Unknown option '%s'\n", argv[i] );
+            print_usage ( argv[0] );
+            return 1;
+        }
+    }
 
     g_setenv ( "LC_ALL", "C", TRUE );
     setlocale ( LC_ALL, "" );
@@ -94,7 +132,7 @@ int main ( int argc, char** argv ) {
 #if 0
     /*
      * nejak se mi s pomoci ddltool nepodarilo vyrobit a nalinkovat fungujici delaylib
-     * 
+     *
      */
     if ( SetDllDirectory ( "C:\\share\\mz800emu\\runtime\\sdl-2" ) ) {
         printf ( "1 OK\n" );
@@ -150,7 +188,7 @@ int main ( int argc, char** argv ) {
     printf ( "   F12     - reset\n" );
     printf ( "\n" );
 
-    mz800_main ( );
+    mz800_main ( mzf_file_to_load );
 
     return 0;
 }
