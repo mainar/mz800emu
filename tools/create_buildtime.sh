@@ -8,14 +8,14 @@ if [ $? -ne 0 ]; then
 	BUILD_TIME="UNKNOWN BUILD TIME"
 fi
 
-REVISION_TXT=`svn info|egrep "^Revision:"`
-
-REVISION_INT=`echo ${REVISION_TXT}|sed -e s/^Revision://`
+REVISION_INT=`git rev-list --count --first-parent HEAD`
 
 if [ -z "${REVISION_INT}" ]; then
-	echo -e "\n\n$0 - ERROR: can't SVN get revision info\n\n"
+	echo -e "\n\n$0 - ERROR: can't get git revision info\n\n"
 	exit 1
 fi
+
+LAST_COMMIT=`git show -s --pretty=format:"%H - %s"`
 
 cat << ENDOFFILE > ${OUTPUT_FILE}
 
@@ -23,7 +23,7 @@ cat << ENDOFFILE > ${OUTPUT_FILE}
 
 char* build_time_get ( void ) { return "${BUILD_TIME}"; }
 
-char* build_time_get_revision_txt ( void ) { return "${REVISION_TXT}"; }
+char* build_time_get_revision_txt ( void ) { return "${LAST_COMMIT}"; }
 
 int build_time_get_revision_int ( void ) { return ${REVISION_INT}; }
 
