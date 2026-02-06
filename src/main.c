@@ -27,7 +27,6 @@
 #include <stdlib.h>
 #include <locale.h>
 #include <string.h>
-#include <glib.h>
 
 #include "main.h"
 
@@ -36,8 +35,10 @@
 #include "display.h"
 #include "iface_sdl/iface_sdl.h"
 #include "mz800.h"
+#ifdef ENABLE_UI
 #include "ui/ui_main.h"
 #include "version_check/version_check.h"
+#endif
 
 #if 0
 #include <windows.h>
@@ -68,13 +69,17 @@ void main_app_quit ( int exit_value ) {
     if ( exit_value == 0 ) {
         fprintf ( stderr, "Main App is normaly exiting...\n" );
         cfgmain_exit ( );
+#ifdef ENABLE_UI
         version_check_exit ( );
+#endif
         mz800_exit ( );
     } else {
         fprintf ( stderr, "Oops ... Main App is abnormaly exiting...\n" );
     };
 
+#ifdef ENABLE_UI
     ui_exit ( );
+#endif
     iface_sdl_quit ( );
 
 #if WINDOWS
@@ -126,7 +131,7 @@ int main ( int argc, char** argv ) {
         }
     }
 
-    g_setenv ( "LC_ALL", "C", TRUE );
+    setenv ( "LC_ALL", "C", 1 );
     setlocale ( LC_ALL, "" );
 
 #if 0
@@ -156,7 +161,8 @@ int main ( int argc, char** argv ) {
 
     //main_app_init ( );
     display_init ( );
-    
+
+#ifdef ENABLE_UI
 #if GTK_3_22_30
     iface_sdl_init ( );
     //ui_init ( argc, argv );
@@ -169,8 +175,14 @@ int main ( int argc, char** argv ) {
     ui_init ( );
     iface_sdl_init ( );
 #endif
-
     version_check_init ( );
+#else
+    // Headless mode - SDL only
+    // Initialize memory driver for MZF file loading
+    extern void ui_memory_driver_init(void);
+    ui_memory_driver_init();
+    iface_sdl_init ( );
+#endif
 
     mz800_init ( );
 

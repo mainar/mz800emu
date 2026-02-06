@@ -24,12 +24,12 @@ message("Building for : ${CMAKE_SYSTEM_NAME}")
 
 add_library(mz800emu_options INTERFACE)
 target_include_directories(mz800emu_options INTERFACE .)
-target_link_libraries(mz800emu_options INTERFACE 
-    PkgConfig::GLIB2
-    PkgConfig::GTK3
+target_link_libraries(mz800emu_options INTERFACE
     SDL2::SDL2
-    PkgConfig::LIBSOUP
+    PkgConfig::GLIB2
     $<$<C_COMPILER_ID:GNU>:m>
+    $<$<BOOL:${ENABLE_UI}>:PkgConfig::GTK3>
+    $<$<BOOL:${ENABLE_UI}>:PkgConfig::LIBSOUP>
     )
 
 target_compile_definitions(mz800emu_options INTERFACE
@@ -37,6 +37,7 @@ target_compile_definitions(mz800emu_options INTERFACE
     $<$<STREQUAL:Windows,${CMAKE_SYSTEM_NAME}>:WINDOWS>
     $<$<AND:$<STREQUAL:Windows,${CMAKE_SYSTEM_NAME}>,$<EQUAL:4,${CMAKE_SIZEOF_VOID_P}>>:WINDOWS_X86>
     $<$<AND:$<STREQUAL:Windows,${CMAKE_SYSTEM_NAME}>,$<EQUAL:8,${CMAKE_SIZEOF_VOID_P}>>:WINDOWS_X64>
+    $<$<BOOL:${ENABLE_UI}>:ENABLE_UI>
     )
 
 option(ENABLE_PEDANTIC "enable -pedantic" OFF)

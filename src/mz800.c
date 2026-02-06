@@ -27,6 +27,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
 
 #include "main.h"
 #include "cfgmain.h"
@@ -67,22 +69,25 @@
 // ve Win32 neni ???
 //#include <SDL2/SDL_assert.h>
 
+#ifdef ENABLE_UI
 #include "ui/ui_main.h"
-#include "typedefs.h"
-
 #include "version_check/version_check.h"
+#else
+#include "ui_stub.h"
+#endif
+#include "typedefs.h"
 
 #ifdef MZ800EMU_CFG_DEBUGGER_ENABLED
 #include "debugger/debugger.h"
 #include "debugger/breakpoints.h"
 #include "ui/debugger/ui_breakpoints.h"
+#include "ui/debugger/ui_debugger.h"
 #endif
 
 
 #define DBGLEVEL (DBGNON /* | DBGERR | DBGWAR | DBGINF*/)
 //#define DBGLEVEL (DBGNON | DBGERR | DBGWAR | DBGINF )
 #include "debug.h"
-#include "ui/debugger/ui_debugger.h"
 
 
 struct st_mz800 g_mz800;
@@ -406,11 +411,15 @@ static inline void mz800_event_screen_done ( void ) {
 
         iface_sdl_pool_all_events ( );
 
+#ifdef ENABLE_UI
         if ( TEST_VERSION_CHECK_THREAD_DONE ) {
             version_check_parse_thread_response ( );
         };
+#endif
 
+#ifdef ENABLE_UI
         ui_iteration ( );
+#endif
 
         if ( g_gdg.framebuffer_state || g_iface_sdl.redraw_full_screen_request ) {
             iface_sdl_update_window ( );
@@ -777,7 +786,9 @@ static inline void mz800_do_emulation_paused ( void ) {
 
     while ( TEST_EMULATION_PAUSED && ( !TEST_DEBUGGER_STEP_CALL ) ) {
         iface_sdl_pool_all_events ( );
+#ifdef ENABLE_UI
         ui_iteration ( );
+#endif
 
         if ( g_iface_sdl.redraw_full_screen_request ) {
             iface_sdl_update_window ( );
@@ -802,7 +813,9 @@ static inline void mz800_do_emulation_paused ( void ) {
 
     while ( TEST_EMULATION_PAUSED ) {
         iface_sdl_pool_all_events ( );
+#ifdef ENABLE_UI
         ui_iteration ( );
+#endif
 
         if ( g_iface_sdl.redraw_full_screen_request ) {
             iface_sdl_update_window ( );

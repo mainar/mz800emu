@@ -35,12 +35,15 @@ extern "C" {
     /*
      * Konfiguracni vypnuti modulu MZ-800 debugger
      * ===========================================
-     * 
+     *
      * Emulace se zjednodusi a mela by byt rychlejsi (nemeril jsem, zda je tomu skutecne tak).
-     * 
+     *
+     * Debugger requires GTK UI, so only enable it when ENABLE_UI is defined.
      */
 
+#ifdef ENABLE_UI
 #define MZ800EMU_CFG_DEBUGGER_ENABLED
+#endif
 
 
 

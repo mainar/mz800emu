@@ -536,7 +536,11 @@ void iface_sdl_keydown_event ( SDL_Event *event ) {
     } else {
         if ( ( g_mz800.development_mode ) && ( iface_sdl_keydown_in_development_mode ( event ) ) ) {
             return;
+#ifdef ENABLE_UI
         } else if ( !g_ui.disable_hotkeys ) {
+#else
+        } else {
+#endif
             iface_sdl_keydown_hotkeys ( event );
         };
     };

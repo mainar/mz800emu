@@ -386,7 +386,12 @@ void iface_sdl_init ( void ) {
     /* Inicializace okna */
     g_iface_sdl.last_wsizeX = IFACE_WINDOW_WIDTH;
     g_iface_sdl.last_wsizeY = IFACE_WINDOW_HEIGHT;
+#ifdef ENABLE_UI
     g_iface_sdl.window = SDL_CreateWindow ( "MZ-800", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, g_iface_sdl.last_wsizeX, g_iface_sdl.last_wsizeY, SDL_WINDOW_RESIZABLE );
+#else
+    // Headless mode - run fullscreen for RetroPie/EmulationStation
+    g_iface_sdl.window = SDL_CreateWindow ( "MZ-800", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP );
+#endif
 
     if ( NULL == g_iface_sdl.window ) {
         fprintf ( stderr, "Could not create window: %s\n", SDL_GetError ( ) );
@@ -453,7 +458,8 @@ void iface_sdl_init ( void ) {
 #endif
 
     if ( EXIT_FAILURE == iface_sdl_audio_init ( NULL, -1 ) ) {
-        main_app_quit ( EXIT_FAILURE );
+        SDL_Log ( "WARNING: Audio initialization failed - continuing without audio." );
+        SDL_Log ( "The emulator will run silently. Check audio device configuration if sound is needed." );
     }
 
     iface_sdl_joy_init ( );

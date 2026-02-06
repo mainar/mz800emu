@@ -32,20 +32,24 @@ extern "C" {
 
 #include "mz800emu_cfg.h"
 
+#ifdef ENABLE_UI
 #include <gtk/gtk.h>
+#endif
+
+#ifdef ENABLE_UI
 
 //#define OLD_GTK_RUNTIME
 
-// po aktualizaci windows gtk runtime se jiz topmenu chova podobne jako v linuxu 
+// po aktualizaci windows gtk runtime se jiz topmenu chova podobne jako v linuxu
 #ifndef OLD_GTK_RUNTIME
 #define UI_TOPMENU_IS_WINDOW
 #endif
-    
-#define UI_USE_ERRORLOG 
+
+#define UI_USE_ERRORLOG
 
 #ifdef UI_USE_ERRORLOG
 #define UI_ERRORLOG_FILE    "error.log"
-#endif    
+#endif
 
 #define LOCK_UICALLBACKS()         g_ui.calback_lock = 1
 #define UNLOCK_UICALLBACKS()       g_ui.calback_lock = 0
@@ -83,18 +87,16 @@ extern "C" {
 
     extern st_UI g_ui;
 
-
     extern GObject* ui_get_object_safely ( gchar *name );
 
     //extern void ui_init ( int argc, char *argv[] );
     extern void ui_init ( void );
     extern void ui_exit ( void );
+    extern void ui_iteration ( void );
 
     extern void ui_main_setpos ( st_UIWINPOS *wpos, gint x, gint y );
     extern void ui_main_win_move_to_pos ( GtkWindow *w, st_UIWINPOS *wpos );
     extern void ui_main_win_get_pos ( GtkWindow *w, st_UIWINPOS *wpos );
-
-    extern void ui_iteration ( void );
 
 #ifdef UI_TOPMENU_IS_WINDOW
     extern void ui_show_hide_main_menu_window ( void );
@@ -119,6 +121,16 @@ extern "C" {
 #ifdef MZ800EMU_CFG_DEBUGGER_ENABLED
     extern void ui_main_debugger_windows_refresh ( void );
 #endif
+
+#else /* !ENABLE_UI */
+    // Stub macros when UI is disabled
+    #define LOCK_UICALLBACKS()
+    #define UNLOCK_UICALLBACKS()
+    #define TEST_UICALLBACKS_LOCKED (0)
+
+    // Stub functions when UI is disabled - use inline stubs from ui_stub.h
+    #include "../ui_stub.h"
+#endif /* ENABLE_UI */
 
 #ifdef __cplusplus
 }

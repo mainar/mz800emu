@@ -16,15 +16,19 @@ add_subdirectory(gdg)
 add_subdirectory(ide8)
 add_subdirectory(joy)
 add_subdirectory(memory)
-add_subdirectory(debugger)
+if(ENABLE_UI)
+    add_subdirectory(debugger)
+endif()
 add_subdirectory(pioz80)
 add_subdirectory(pio8255)
 add_subdirectory(psg)
 add_subdirectory(qdisk)
 add_subdirectory(ramdisk)
 add_subdirectory(unicard)
-add_subdirectory(version_check)
-add_subdirectory(ui)
+if(ENABLE_UI)
+    add_subdirectory(version_check)
+    add_subdirectory(ui)
+endif()
 add_subdirectory(cfgfile)
 add_subdirectory(iface_sdl)
 add_subdirectory(libs)
@@ -53,6 +57,7 @@ add_executable(mz800emu WIN32
     port.h
     sharpmz_ascii.c
     sharpmz_ascii.h
+    $<$<NOT:$<BOOL:${ENABLE_UI}>>:ui_stubs.c>
 
     $<TARGET_OBJECTS:CPU>
     $<TARGET_OBJECTS:CMT>
@@ -82,21 +87,21 @@ add_executable(mz800emu WIN32
     $<TARGET_OBJECTS:ROM_JSS106A>
     $<TARGET_OBJECTS:ROM_JSS108C>
 
-    $<TARGET_OBJECTS:MZ800Debugger>
+    $<$<BOOL:${ENABLE_UI}>:$<TARGET_OBJECTS:MZ800Debugger>>
     $<TARGET_OBJECTS:PIOZ80>
     $<TARGET_OBJECTS:PIO8255>
     $<TARGET_OBJECTS:PSG>
     $<TARGET_OBJECTS:QDISK>
     $<TARGET_OBJECTS:Ramdisk>
     $<TARGET_OBJECTS:Unicard>
-    $<TARGET_OBJECTS:VersionCheck>
 
-    $<TARGET_OBJECTS:UI>
-    $<TARGET_OBJECTS:debugger_ui>
-    $<TARGET_OBJECTS:dsk_tool_ui>
-    $<TARGET_OBJECTS:generic_driver_ui>
-    $<TARGET_OBJECTS:tool_ui>
-    $<TARGET_OBJECTS:vkbd_ui>
+    $<$<BOOL:${ENABLE_UI}>:$<TARGET_OBJECTS:VersionCheck>>
+    $<$<BOOL:${ENABLE_UI}>:$<TARGET_OBJECTS:UI>>
+    $<$<BOOL:${ENABLE_UI}>:$<TARGET_OBJECTS:debugger_ui>>
+    $<$<BOOL:${ENABLE_UI}>:$<TARGET_OBJECTS:dsk_tool_ui>>
+    $<$<BOOL:${ENABLE_UI}>:$<TARGET_OBJECTS:generic_driver_ui>>
+    $<$<BOOL:${ENABLE_UI}>:$<TARGET_OBJECTS:tool_ui>>
+    $<$<BOOL:${ENABLE_UI}>:$<TARGET_OBJECTS:vkbd_ui>>
     )
 
 target_link_libraries(mz800emu PRIVATE mz800emu_options)

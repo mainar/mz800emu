@@ -1,13 +1,22 @@
-# somewhat linux centric atm 
+# somewhat linux centric atm
 
 include(FindPackageHandleStandardArgs)
 
 find_package(PkgConfig REQUIRED)
+
+# GLIB is always required (used for file utilities throughout the codebase)
 pkg_check_modules(GLIB2 REQUIRED glib-2.0 IMPORTED_TARGET)
 
-pkg_check_modules(LIBSOUP REQUIRED libsoup-2.4 IMPORTED_TARGET)
+# GTK UI is optional - only required if ENABLE_UI is ON
+option(ENABLE_UI "Enable GTK-based UI (menus, debugger, dialogs)" ON)
 
-pkg_check_modules(GTK3 REQUIRED gtk+-3.0 IMPORTED_TARGET)
+if(ENABLE_UI)
+    pkg_check_modules(LIBSOUP REQUIRED libsoup-2.4 IMPORTED_TARGET)
+    pkg_check_modules(GTK3 REQUIRED gtk+-3.0 IMPORTED_TARGET)
+    message(STATUS "GTK UI enabled")
+else()
+    message(STATUS "GTK UI disabled - building headless SDL-only version")
+endif()
 
 pkg_check_modules(SDL2 sdl2 IMPORTED_TARGET GLOBAL)
 
