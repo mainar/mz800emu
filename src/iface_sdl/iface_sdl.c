@@ -400,7 +400,8 @@ void iface_sdl_init ( void ) {
 
 
     /* Inicializace rendereru */
-    g_iface_sdl.renderer = SDL_CreateRenderer ( g_iface_sdl.window, -1, ( SDL_RENDERER_ACCELERATED /* | SDL_RENDERER_PRESENTVSYNC */ ) );
+    // Enable VSync for smooth rendering and to prevent screen tearing
+    g_iface_sdl.renderer = SDL_CreateRenderer ( g_iface_sdl.window, -1, ( SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC ) );
 
     if ( NULL == g_iface_sdl.renderer ) {
         fprintf ( stderr, "Could not create render: %s\n", SDL_GetError ( ) );

@@ -237,7 +237,7 @@ unsigned flag_update_debugger_time = 1;
 #endif
 
 #define INTERRUPT_TIMER_MS          20
-#define INTERRUPT_MAKEPIC_PER_SEC   25
+#define INTERRUPT_MAKEPIC_PER_SEC   50  // Changed from 25 to match PAL 50Hz refresh rate
 #define INTERRUPT_POOL_EVENTS_PER_SEC   20
 
 
